@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.2/css/bootstrap-select.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.2/js/bootstrap-select.min.js"></script>
+<script>
+    function processData(geodata) {
+        if (geodata.results.length === 0) {
+            $("#content").html("<div class=\"panel panel-danger\">" + "<div class=\"panel-heading\">Error:</div>" +
+                "<div class=\"panel-body\">There was an error with the address that you provided, please try again.</div>" +
+                "</div>" + $("#content").html());
+        } else {
+            let lat = geodata.results[0].geometry.location.lat;
+            let lon = geodata.results[0].geometry.location.lng;
+            let link = "https://www.projectcoups.dreamhosters.com/?";
+            link += "name=" + encodeURIComponent($("#name").val()) + "&email=" + encodeURIComponent($("#email").val()) +
+                "&location=" + encodeURIComponent($("#location").val()) + "&address=" +
+                encodeURIComponent($("#address").val()) + "&stalls=" + encodeURIComponent($("#stalls").val()) +
+                "&link=" + encodeURIComponent($("#link").val()) + "&rating=" + encodeURIComponent($("#rating").val()) +
+                "&lng=" + encodeURIComponent(lon) + "&lat=" + encodeURIComponent(lat) + "&type=" +
+                encodeURIComponent($("#chargerType").val()) + "&status=" +
+                encodeURIComponent($("#chargerStatus").val()) + "&openDate=" +
+                encodeURIComponent($("#openDate").val()) + "&stalls=" + encodeURIComponent($("#stalls").val());
+            $.getJSON(link, function (data) {
+                if (data.error !== null) {
+                    $("#content").html(
+                        "<div class=\"panel panel-danger\">" + "<div class=\"panel-heading\">Error:</div>" +
+                        "<div class=\"panel-body\">" + data.error + "</div>" + "</div>" + $("#content").html());
+                } else {
+                    $("#content").html(
+                        "<div class=\"panel panel-success\">" + "<div class=\"panel-heading\">Success!</div>" +
+                        "<div class=\"panel-body\">The review was successfully submitted!</div>" + "</div>");
+                }
+            });
+        }
+    }
+    function handleError(error) {
+        console.log(error);
+    }
+    function checkValidForm() {
+        if ($("#name").val() === "" || $("#email").val() === "" || $("#location").val() === "" ||
+            $("#address").val() === "" || $("#stalls").val() === "" || $("#link").val() === "" || $("#rating") === "") {
+            $("#content").html("<div class=\"panel panel-danger\">" + "<div class=\"panel-heading\">Error:</div>" +
+                "<div class=\"panel-body\">Not all fields were filled out</div>" + "</div>" + $("#content").html());
+            return false;
+        } else {
+            return true;
+        }
+    }
+    $(document).ready(function () {
+        $("#submitButton").click(function () {
+            if (checkValidForm()) {
+                let key = "AIzaSyBEIu1AJIoF4srd0rC9bYj3NCIj8yLg5vs";
+                let address = encodeURIComponent($("#address").val());
+                let link = "https://maps.googleapis.com/maps/api/geocode/json?address=" + address + "&key=" + key;
+                $.getJSON(link, function (data) {
+                    processData(data)
+                });
+            } else {
+                doNothing();
+            }
+        });
+    });
+</script>
+<div id="content">
+    <h1>Super Charger Review Submission</h1>
+    <div class="form-group">
+        <label for="name">Name:</label>
+        <input class="form-control" id="name" type="text" required>
+    </div>
+    <div class="form-group">
+        <label for="email">Email:</label>
+        <input class="form-control" id="email" type="email" required>
+    </div>
+    <div class="form-group">
+        <label for="location">Name of Super Charger:</label>
+        <input class="form-control" id="location" type="text" required>
+    </div>
+    <div class="form-group">
+        <label for="address">Super Charger Address (You can find the address <a href="https://supercharge.info/"
+                                                                                target="_blank">here</a>):</label>
+        <input class="form-control" id="address" type="text" required>
+    </div>
+    <div class="form-group">
+        <label for="stalls">Number of Stalls:</label>
+        <input class="form-control" id="stalls" type="number" min="0" step="1" required>
+    </div>
+    <div class="form-group">
+        <label for="link">Youtube Link to Review:</label>
+        <input class="form-control" id="link" type="text" required>
+    </div>
+    <div class="form-group">
+        <label for="rating">Rating out of 10:</label>
+        <input class="form-control" id="rating" type="number" min="1" max="10" step="1" required>
+    </div>
+    <div class="form-group">
+        <label for="chargerType">Charger Type</label>
+        <select class="form-control selectpicker" id="chargerType">
+            <option value="0">Supercharger</option>
+            <option value="1">Destination Charger</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="chargerStatus">Status of the Charger</label>
+        <select class="form-control selectpicker" id="chargerStatus">
+            <option value="0">Open</option>
+            <option value="1">Permit</option>
+            <option value="2">Construction</option>
+            <option value="3">Closed</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="openDate">Opening Date</label>
+        <input class="form-control" id="openDate" type="text" required>
+    </div>
+    <button type="button" class="form-control btn-primary" id="submitButton">Submit Review</button>
+</div>
+</body>
+</html>
