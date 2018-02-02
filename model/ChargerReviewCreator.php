@@ -24,55 +24,39 @@
          */
         public static function newUserReview($name, $email, $locationName, $address, $stalls, $link, $rating, $lng,
                                              $lat, $type, $status, $openDate) {
-            try {
-                $location1 = new Location($lat, $lng);
-                $box = $location1->getBox(.1);
-                $query = new SelectQuery("chargers", "charger_id", "lat", "lng");
-                $query = new CustomerQuery($query->generateQuery() . " WHERE " .
-                    withinCoords($box->getMinLng(), $box->getMaxLng(), $box->getMinLat(), $box->getMaxLat()));
-                $result = DBQuerrier::checkExistsQuery($query);
-                if (!$result) {
-                    switch ($type) {
-                        case 0:
-                            //the supercharger is not in the system or the google maps.
-                            self::superChargerNotInSystem($name, $email, $locationName, $address, $stalls, $link, $rating,
-                                $lng, $lat, $status, $openDate);
-                            break;
-                        case 1:
-                            //the destination charger is not in the system.
-                            self::destinationChargerNotInSystem($name, $email, $locationName, $address, $link, $rating, $lng,
-                                $lat);
-                            break;
-                        default:
-                            throw new InvalidArgumentException("Invalid charger type");
-                    }
-                } else {
-                    $row = @ mysqli_fetch_array($result);
-                    $primaryKey = $row['charger_id'];
-                    $query = new InsertIncrementQuery("reviews", "review_id");
-                    $query->addParamAndValues("link", DBValue::stringValue($link))
-                        ->addParamAndValues("reviewer", DBValue::stringValue($name))
-                        ->addParamAndValues("email", DBValue::stringValue($email))
-                        ->addParamAndValues("rating", DBValue::nonStringValue($rating))
-                        ->addParamAndValues("charger_id", DBValue::nonStringValue($primaryKey));
-                    DBQuerrier::defaultInsert($query);
-                }
-            } catch (Exception $exception) {
-                //There was more than one supercharger that returned.
+            $location1 = new Location($lat, $lng);
+            $box = $location1->getBox(.1);
+            $query = new SelectQuery("chargers", "charger_id", "lat", "lng");
+            $query = new CustomerQuery($query->generateQuery() . " WHERE " .
+                self::withinCoords($box->getMinLng(), $box->getMaxLng(), $box->getMinLat(), $box->getMaxLat()));
+            $result = DBQuerrier::checkExistsQuery($query);
+            if (!$result) {
                 switch ($type) {
                     case 0:
                         //the supercharger is not in the system or the google maps.
-                        self::superChargerNotInSystem($name, $email, $locationName, $address, $stalls, $link, $rating,
+                        self::superChargerNotInSystem($name, $email, $locationName, $address, $stalls, $link,
+                            $rating,
                             $lng, $lat, $status, $openDate);
                         break;
                     case 1:
                         //the destination charger is not in the system.
-                        self::destinationChargerNotInSystem($name, $email, $locationName, $address, $link, $rating, $lng,
+                        self::destinationChargerNotInSystem($name, $email, $locationName, $address, $link, $rating,
+                            $lng,
                             $lat);
                         break;
                     default:
                         throw new InvalidArgumentException("Invalid charger type");
                 }
+            } else {
+                $row = @ mysqli_fetch_array($result);
+                $primaryKey = $row['charger_id'];
+                $query = new InsertIncrementQuery("reviews", "review_id");
+                $query->addParamAndValues("link", DBValue::stringValue($link))
+                    ->addParamAndValues("reviewer", DBValue::stringValue($name))
+                    ->addParamAndValues("email", DBValue::stringValue($email))
+                    ->addParamAndValues("rating", DBValue::nonStringValue($rating))
+                    ->addParamAndValues("charger_id", DBValue::nonStringValue($primaryKey));
+                DBQuerrier::defaultInsert($query);
             }
         }
 

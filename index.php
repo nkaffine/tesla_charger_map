@@ -49,7 +49,20 @@
 
     if (count($_GET)) {
         try {
-
+            $name = validInputSizeAlpha($_GET["name"], 255);
+            $email = validInputSizeAlpha($_GET["email"], 255);
+            $location = validInputSizeAlpha($_GET["location"], 255);
+            $address = validInputSizeAlpha($_GET["address"], 255);
+            $stalls = validNumbers($_GET["stalls"], 3);
+            $link = validInputSizeAlpha($_GET["link"], 255);
+            $rating = validNumbers($_GET["rating"], 2);
+            $lng = validNumbers($_GET["lng"], 15);
+            $lat = validNumbers($_GET["lat"], 15);
+            $type = validNumbers($_GET["type"], 1);
+            $status = validNumbers($_GET["status"], 1);
+            $openDate = validInputSizeAlpha($_GET["openDate"], 255);
+            ChargerReviewCreator::newUserReview($name, $email, $location, $address, $stalls, $link, $rating, $lng, $lat,
+                $type, $status, $openDate);
             header('Content-Type: application/json');
             $array = array();
             $array['error'] = null;
