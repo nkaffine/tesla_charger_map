@@ -20,7 +20,7 @@
          * @param $reviews IChargerReview[] the reviews for this destination charger.
          * @param $address string the address for this destination charger.
          */
-        public function __construct($id, $name, ILocation $location, $reviews, $address) {
+        public function __construct($id, $name, $location, $reviews, $address) {
             parent::__construct($id, $name, $location, $reviews, $address);
         }
 

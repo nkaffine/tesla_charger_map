@@ -15,6 +15,7 @@
     require_once($_SERVER["DOCUMENT_ROOT"] . "/location/LocationBox.php");
     require_once($_SERVER["DOCUMENT_ROOT"] . "/location/Location.php");
     require_once($_SERVER["DOCUMENT_ROOT"] . "/CustomerQuery.php");
+    require_once($_SERVER["DOCUMENT_ROOT"] . "/model/chargers/SuperCharger.php");
 
     header("Access-Control-Allow-Origin: *");
 
@@ -121,21 +122,21 @@
                 ->addParamAndValues("rating", DBValue::nonStringValue($rating))
                 ->addParamAndValues("charger_id", DBValue::nonStringValue($primaryKey));
             DBQuerrier::defaultInsert($query);
+            header('Content-Type: application/json');
             $array = array();
-            $array['error'] = $exception->getMessage();
+            $array['error'] = null;
             echo json_encode($array, JSON_PRETTY_PRINT);
         } catch (SQLNonUniqueValueException $nonUniqueValueException) {
+            header('Content-Type: application/json');
             $array = array();
             $array['error'] = "There were multiple chargers in that location";
             echo json_encode($array, JSON_PRETTY_PRINT);
         } catch (Exception $exception) {
+            header('Content-Type: application/json');
             $array = array();
             $array['error'] = $exception->getMessage();
             echo json_encode($array, JSON_PRETTY_PRINT);
         }
-        $array = array();
-        $array['error'] = null;
-        echo json_encode($array, JSON_PRETTY_PRINT);
     } else {
         $page = new DefaultPage("Super Chargers");
         $page->addStyleSheet("/main.css");
