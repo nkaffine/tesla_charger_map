@@ -145,13 +145,17 @@
         }
 
         /**
-         * Gets all of the superchargers in the database.
+         * Gets all of the superchargers in the database who fulfill the given condition.
          *
-         * @return SuperCharger[]
+         * @param $where IWhere the condition that must hold for the superchargers to be returned.
+         * @return SuperCharger[] the list of superchargers.
          */
-        public static function getAllSuperChargers() {
+        public static function getAllSuperChargers($where) {
             $innerQuery = new SelectQuery("chargers", "charger_id", "name", "lat", "lng", "address");
             $innerQuery->where(Where::whereEqualValue("type", DBValue::stringValue("supercharger")));
+            if($where !== null) {
+                $innerQuery->where($where);
+            }
             $table1 = new QueriedJoinTable($innerQuery, "results1", "charger_id");
             $table1->addParams("charger_id", "name", "lat", "lng", "address");
             $table2 = new DBJoinTable("super_chargers", "charger_id");

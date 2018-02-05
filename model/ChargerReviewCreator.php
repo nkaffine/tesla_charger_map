@@ -21,6 +21,7 @@
          * @param $type int the type of the charger.
          * @param $status int the status of the charger.
          * @param $openDate string the date that the charger was opened.
+         * @return boolean whether the charger was in the system or not.
          */
         public static function newUserReview($name, $email, $locationName, $address, $stalls, $link, $rating, $lng,
                                              $lat, $type, $status, $openDate) {
@@ -35,18 +36,17 @@
                     case 0:
                         //the supercharger is not in the system or the google maps.
                         self::superChargerNotInSystem($name, $email, $locationName, $address, $stalls, $link,
-                            $rating,
-                            $lng, $lat, $status, $openDate);
+                            $rating, $lng, $lat, $status, $openDate);
                         break;
                     case 1:
                         //the destination charger is not in the system.
                         self::destinationChargerNotInSystem($name, $email, $locationName, $address, $link, $rating,
-                            $lng,
-                            $lat);
+                            $lng, $lat);
                         break;
                     default:
                         throw new InvalidArgumentException("Invalid charger type");
                 }
+                return false;
             } else {
                 $row = @ mysqli_fetch_array($result);
                 $primaryKey = $row['charger_id'];
@@ -57,6 +57,7 @@
                     ->addParamAndValues("rating", DBValue::nonStringValue($rating))
                     ->addParamAndValues("charger_id", DBValue::nonStringValue($primaryKey));
                 DBQuerrier::defaultInsert($query);
+                return true;
             }
         }
 
@@ -75,7 +76,7 @@
          */
         private static function superChargerNotInSystem($name, $email, $locationName, $address, $stalls, $link, $rating,
                                                         $lng, $lat, $status, $openDate) {
-            $query = new InsertIncrementQuery("sc_not_in_system", "charger_id");
+            $query = new InsertIncrementQuery("sc_not_in_system", "review_id");
             $query->addParamAndValues("name", DBValue::stringValue($name))
                 ->addParamAndValues("email", DBValue::stringValue($email))
                 ->addParamAndValues("location", DBValue::stringValue($locationName))
@@ -85,8 +86,10 @@
                 ->addParamAndValues("rating", DBValue::nonStringValue($rating))
                 ->addParamAndValues("lng", DBValue::nonStringValue($lng))
                 ->addParamAndValues("lat", DBValue::nonStringValue($lat))
-                ->addParamAndValues("status", DBValue::nonStringValue($status))
-                ->addParamAndValues("open_date", DBValue::nonStringValue($openDate));
+                ->addParamAndValues("status", DBValue::nonStringValue($status));
+            if ($openDate != null) {
+                $query->addParamAndValues("open_date", DBValue::nonStringValue($openDate));
+            }
             DBQuerrier::defaultInsert($query);
         }
 
@@ -102,7 +105,7 @@
          */
         private static function destinationChargerNotInSystem($name, $email, $locationName, $address, $link, $rating,
                                                               $lng, $lat) {
-            $query = new InsertIncrementQuery("dc_not_in_chargers", "charger_id");
+            $query = new InsertIncrementQuery("dc_not_in_chargers", "review_id");
             $query->addParamAndValues("name", DBValue::stringValue($name))
                 ->addParamAndValues("email", DBValue::stringValue($email))
                 ->addParamAndValues("location", DBValue::stringValue($locationName))
@@ -110,7 +113,7 @@
                 ->addParamAndValues("link", DBValue::stringValue($link))
                 ->addParamAndValues("rating", DBValue::nonStringValue($rating))
                 ->addParamAndValues("lng", DBValue::nonStringValue($lng))
-                ->addParamAndValues("lat", DBValue::nonStringValue($lng));
+                ->addParamAndValues("lat", DBValue::nonStringValue($lat));
             DBQuerrier::defaultInsert($query);
         }
 

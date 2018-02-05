@@ -35,10 +35,15 @@
                     $("#content").html(
                         "<div class=\"panel panel-danger\">" + "<div class=\"panel-heading\">Error:</div>" +
                         "<div class=\"panel-body\">" + data.error + "</div>" + "</div>" + $("#content").html());
+                } else if (data.success === null) {
+                    $("#content").html(
+                        "<div class=\"panel panel-danger\">" + "<div class=\"panel-heading\">Error:</div>" +
+                        "<div class=\"panel-body\">An unknown error occurred.</div>" + "</div>" + $("#content").html());
                 } else {
                     $("#content").html(
                         "<div class=\"panel panel-success\">" + "<div class=\"panel-heading\">Success!</div>" +
-                        "<div class=\"panel-body\">The review was successfully submitted!</div>" + "</div>");
+                        "<div class=\"panel-body\">The review was successfully submitted! " + data.success + "</div>" +
+                        "</div>");
                 }
             });
         }

@@ -61,21 +61,30 @@
             $type = validNumbers($_GET["type"], 1);
             $status = validNumbers($_GET["status"], 1);
             $openDate = validInputSizeAlpha($_GET["openDate"], 255);
-            ChargerReviewCreator::newUserReview($name, $email, $location, $address, $stalls, $link, $rating, $lng, $lat,
-                $type, $status, $openDate);
+            $inSystem =
+                ChargerReviewCreator::newUserReview($name, $email, $location, $address, $stalls, $link, $rating, $lng,
+                    $lat,
+                    $type, $status, $openDate);
             header('Content-Type: application/json');
             $array = array();
             $array['error'] = null;
+            if ($inSystem) {
+                $array['success'] = "You should see your review when you refresh the page.";
+            } else {
+                $array['success'] = "It may take a few days for your review to be processed.";
+            }
             echo json_encode($array, JSON_PRETTY_PRINT);
         } catch (SQLNonUniqueValueException $nonUniqueValueException) {
             header('Content-Type: application/json');
             $array = array();
             $array['error'] = "There were multiple chargers in that location";
+            $array['success'] = null;
             echo json_encode($array, JSON_PRETTY_PRINT);
         } catch (Exception $exception) {
             header('Content-Type: application/json');
             $array = array();
             $array['error'] = $exception->getMessage();
+            $array['success'] = null;
             echo json_encode($array, JSON_PRETTY_PRINT);
         }
     } else {

@@ -14,6 +14,7 @@
         private $innerInsertQuery;
         private $innerPrimaryKeyQuery;
         private $primaryKey;
+        private $primaryKeyRetrieved;
         /**
          * @var DBValue[]
          */
@@ -32,6 +33,7 @@
             $this->innerPrimaryKeyQuery = new SelectQuery($table, "MAX(" . $primaryKey . ")");
             $this->innerInsertQuery = new InsertQuery($table);
             $this->primaryKey = $primaryKey;
+            $this->primaryKeyRetrieved = false;
         }
 
         /**
@@ -40,16 +42,19 @@
          * @return void
          */
         private function getNextPrimaryKey() {
-            $result = DBQuerrier::queryUniqueValue($this->innerPrimaryKeyQuery);
-            $row = @ mysqli_fetch_array($result);
-            $max = $row["MAX(" . $this->primaryKey . ")"] + 1;
-            $numRows = $this->innerInsertQuery->getNumRows();
-            $values = array();
-            for ($i = 0; $i < $numRows; $i++) {
-                array_push($values, DBValue::nonStringValue($max + $i));
+            if(!$this->primaryKeyRetrieved) {
+                $result = DBQuerrier::queryUniqueValue($this->innerPrimaryKeyQuery);
+                $row = @ mysqli_fetch_array($result);
+                $max = $row["MAX(" . $this->primaryKey . ")"] + 1;
+                $numRows = $this->innerInsertQuery->getNumRows();
+                $values = array();
+                for ($i = 0; $i < $numRows; $i++) {
+                    array_push($values, DBValue::nonStringValue($max + $i));
+                }
+                $this->primaryKeyValues = $values;
+                $this->innerInsertQuery->addParamAndValues($this->primaryKey, $values);
+                $this->primaryKeyRetrieved = true;
             }
-            $this->primaryKeyValues = $values;
-            $this->innerInsertQuery->addParamAndValues($this->primaryKey, $values);
         }
 
         /**

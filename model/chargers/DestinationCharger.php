@@ -55,14 +55,19 @@
         public function getChargerType() {
             return "destinationcharger";
         }
+
         /**
-                 * Gets all of the destination chargers in the database.
-                 *
-                 * @return DestinationCharger[]
-                 */
-        public static function getAllDestinationChargers() {
+         * Gets all of the destination chargers in the database.
+         *
+         * @param $where IWhere the condition that must hold for the destination chargers returned.
+         * @return DestinationCharger[]
+         */
+        public static function getAllDestinationChargers($where) {
             $query = new SelectQuery("chargers", "charger_id", "name", "lat", "lng", "address");
             $query->where(Where::whereEqualValue("type", DBValue::stringValue("destinationcharger")));
+            if ($where !== null) {
+                $query->where($where);
+            }
             $results = DBQuerrier::defaultQuery($query);
             $destinationChargers = array();
             while ($row = @ mysqli_fetch_array($results)) {
