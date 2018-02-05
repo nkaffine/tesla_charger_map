@@ -62,7 +62,9 @@
             $reviewJson['rating'] = $destinationChargerReview->getRating();
             $reviewJson['reviewDate'] = $destinationChargerReview->getReviewDate();
             $reviewJson['episode'] = $destinationChargerReview->getTtnEpisode();
-            array_push($array['results'][$destinationChargerReview->getCharger()->getId()]['reviews'], $reviewJson);
+            if ($array['results'][$destinationChargerReview->getCharger()->getId()] !== null) {
+                array_push($array['results'][$destinationChargerReview->getCharger()->getId()]['reviews'], $reviewJson);
+            }
         }
         $array['results'] = array_values($array['results']);
     } catch (Exception $exception) {
