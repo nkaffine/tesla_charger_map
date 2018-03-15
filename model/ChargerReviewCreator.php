@@ -30,7 +30,11 @@
             $query = new SelectQuery("chargers", "charger_id", "lat", "lng");
             $query = new CustomerQuery($query->generateQuery() . " WHERE " .
                 self::withinCoords($box->getMinLng(), $box->getMaxLng(), $box->getMinLat(), $box->getMaxLat()));
-            $result = DBQuerrier::checkExistsQuery($query);
+            try {
+                $result = DBQuerrier::checkExistsQuery($query);
+            } catch (SQLNonUniqueValueException $exception) {
+                $result = false;
+            }
             if (!$result) {
                 switch ($type) {
                     case 0:
