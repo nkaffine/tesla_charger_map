@@ -11,7 +11,7 @@
     class Location implements ILocation {
         private $lat;
         private $lng;
-        private const EARTH_CIRCUMFERENCE = 24901;
+        const EARTH_CIRCUMFERENCE = 24901;
 
         /**
          * Location constructor.

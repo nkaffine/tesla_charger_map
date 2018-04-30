@@ -6,6 +6,8 @@
      * Time: 11:23 AM
      */
 
+    error_reporting(E_ALL);
+    ini_set("display_errors", 1);
     require_once($_SERVER["DOCUMENT_ROOT"] . "/mysql/querying/insert/InsertIncrementQuery.php");
     require_once($_SERVER["DOCUMENT_ROOT"] . "/mysql/querying/DBValue.php");
     require_once($_SERVER["DOCUMENT_ROOT"] . "/mysql/db/DBQuerrier.php");
@@ -14,114 +16,33 @@
     require_once($_SERVER["DOCUMENT_ROOT"] . "/mysql/querying/update/UpdateQuery.php");
     require_once($_SERVER["DOCUMENT_ROOT"] . "/location/LocationBox.php");
     require_once($_SERVER["DOCUMENT_ROOT"] . "/location/Location.php");
-    require_once($_SERVER["DOCUMENT_ROOT"] . "/CustomerQuery.php");
-    require_once($_SERVER["DOCUMENT_ROOT"] . "/model/chargers/SuperCharger.php");
-
+    require_once($_SERVER["DOCUMENT_ROOT"] . "/mysql/querying/CustomQuery.php");
+    require_once($_SERVER["DOCUMENT_ROOT"] . "/inputcleansing/InputCleanserFactory.php");
     header("Access-Control-Allow-Origin: *");
-
-
-    /**
-     * Cleans the string by escaping and removing special characters.
-     *
-     * @param $uncleanString string
-     * @param $maxLength int
-     * @return string
-     */
-    function validInputSizeAlpha($uncleanString, $maxLength) {
-        $sizedString = substr($uncleanString, 0, $maxLength);
-        $cleanString = preg_replace("[^\.a-zA-Z' ]", '', $sizedString);
-        $cleanString = str_replace("'", "\'", $cleanString);
-        return ($cleanString);
-    }
-
-    /**
-     * Cleans the numbers by escaping and removing non numeric chars
-     *
-     * @param $uncleanString string
-     * @param $maxLength int
-     * @return int
-     */
-    function validNumbers($uncleanString, $maxLength) {
-        $cleanString = substr($uncleanString, 0, $maxLength);
-        $cleanString = preg_replace("[^\.0-9]", '', $cleanString);
-        return ($cleanString);
-    }
-
-    function withinCoords($min_lon, $max_lon, $min_lat, $max_lat) {
-        return "(lng > $min_lon and lng < $max_lon) and " .
-            "(lat > $min_lat and lat < $max_lat)";
-    }
 
     if (count($_GET)) {
         try {
-            $name = validInputSizeAlpha($_GET["name"], 255);
-            $email = validInputSizeAlpha($_GET["email"], 255);
-            $location = validInputSizeAlpha($_GET["location"], 255);
-            $address = validInputSizeAlpha($_GET["address"], 255);
-            $stalls = validNumbers($_GET["stalls"], 3);
-            $link = validInputSizeAlpha($_GET["link"], 255);
-            $rating = validNumbers($_GET["rating"], 2);
-            $lng = validNumbers($_GET["lng"], 15);
-            $lat = validNumbers($_GET["lat"], 15);
-            $type = validNumbers($_GET["type"], 1);
-            switch ($type) {
-                case 0:
-                    $type = "supercharger";
-                    break;
-                case 1:
-                    $type = "destinationcharger";
-                    break;
-                default:
-                    throw new InvalidArgumentException("Invalid type of charger");
+            $cleanser = InputCleanserFactory::dataBaseFriendly();
+            $name = $cleanser->cleanse($_GET["name"]);
+            $email = $cleanser->cleanse($_GET["email"]);
+            $location = $cleanser->cleanse($_GET["location"]);
+            $address = $cleanser->cleanse($_GET["address"]);
+            $link = $cleanser->cleanse($_GET["link"]);
+            $rating = $cleanser->cleanse($_GET["rating"]);
+            $lng = $cleanser->cleanse($_GET["lng"]);
+            $lat = $cleanser->cleanse($_GET["lat"]);
+            $type = $cleanser->cleanse($_GET["type"]);
+            if ($type > 1 || $type < 0) {
+                throw new InvalidArgumentException("Invalid type");
             }
-            $status = validNumbers($_GET["status"], 1);
-            switch ($status) {
-                case 0:
-                    $status = "OPEN";
-                    break;
-                case 1:
-                    $status = "PERMIT";
-                    break;
-                case 2:
-                    $status = "CONSTRUCTION";
-                    break;
-                case 3:
-                    $status = "CLOSED";
-                    break;
-                default:
-                    throw new InvalidArgumentException("Invalid status");
+            if ($rating > 10 || $rating < 0) {
+                throw new InvalidArgumentException("Invalid rating scale");
             }
-            $openDate = validInputSizeAlpha($_GET["openDate"], 255);
-            $location1 = new Location($lat, $lng);
-            $box = $location1->getBox(.1);
-            $query = new SelectQuery("chargers", "charger_id", "lat", "lng");
-            $query = new CustomerQuery($query->generateQuery() . " WHERE " .
-                withinCoords($box->getMinLng(), $box->getMaxLng(), $box->getMinLat(), $box->getMaxLat()));
-            $result = DBQuerrier::checkExistsQuery($query);
-            if (!$result) {
-                switch ($type) {
-                    case "supercharger":
-                        $charger =
-                            SuperCharger::newCharger($location, $location1, $address, $status, $openDate, $stalls);
-                        break;
-                    case "destinationcharger":
-                        $charger = DestinationCharger::newCharger($location, $location1, $address);
-                        break;
-                    default:
-                        throw new InvalidArgumentException("Invalid charger type");
-                }
-                $primaryKey = $charger->getId();
+            if (ChargerReview::addReview($name, $email, $location, $address, $link, $rating, $lng, $lat, $type)) {
+                //it was added to the chargers in the system.
             } else {
-                $row = @ mysqli_fetch_array($result);
-                $primaryKey = $row['charger_id'];
+                //It was added to the chargers not in system
             }
-            $query = new InsertIncrementQuery("reviews", "review_id");
-            $query->addParamAndValues("link", DBValue::stringValue($link))
-                ->addParamAndValues("reviewer", DBValue::stringValue($name))
-                ->addParamAndValues("email", DBValue::stringValue($email))
-                ->addParamAndValues("rating", DBValue::nonStringValue($rating))
-                ->addParamAndValues("charger_id", DBValue::nonStringValue($primaryKey));
-            DBQuerrier::defaultInsert($query);
             header('Content-Type: application/json');
             $array = array();
             $array['error'] = null;

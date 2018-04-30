@@ -16,9 +16,9 @@
          * @throws SQLQueryFailException when the query fails
          */
         public static function defaultQuery($query) {
-            $result = @ mysqli_query(DBConnector::getConnector(), $query->generateQuery());
+            $result = mysqli_query(DBConnector::getConnector(), $query->generateQuery());
             if ($result == FALSE) {
-                throw new SQLQueryFailException("Query Failed: " . $query->generateQuery());
+                throw new SQLQueryFailException("Query Failed: " . $query->generateQuery() . DBConnector::getConnector()->error);
             }
             return $result;
         }
