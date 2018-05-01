@@ -21,11 +21,8 @@
     $table = new Table();
     $reviews = array();
     $rows = array();
-    while ($row = @ mysqli_fetch_array($results)) {
-        $review =
-            new ChargerReview($row["review_id"], ChargerFactory::superChargerById($row['charger_id']), $row['link'],
-                $row['reviewer'], $row['email'], $row['rating'], $row['review_date'], null);
-        array_push($reviews, $review);
+    while ($row = @ mysqli_fetch_assoc($results)) {
+        array_push($reviews, $row);
         array_push($rows, array("<a href='{$row['link']}'>Link</a>", $row['reviewer'], $row['email'], $row['rating'],
             $row["review_date"],
             "<form action='/addToTTN.php' method='post'><input type='hidden' name='rid' value='{$row['review_id']}'>"
