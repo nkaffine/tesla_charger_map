@@ -38,45 +38,45 @@
         $superChargers[$chargerReviews[0]["charger_id"]]["reviews"] = $chargerReviews;
         $superChargers[$chargerReviews[0]["charger_id"]]["average"] = $total / $num;
     }
-    $array = array();
-    foreach ($superChargers as $superCharger) {
-        if (@$superCharger["region"] !== null) {
-            if (@$superCharger["country"] !== null) {
-                if (@$superCharger["state"] != null) {
-                    if (@$array[$superCharger["region"]][$superCharger["country"]][$superCharger["state"]] === null) {
-                        $array[$superCharger["region"]][$superCharger["country"]][$superCharger["state"]] = array();
-                    }
-                    array_push($array[$superCharger["region"]][$superCharger["country"]][$superCharger["state"]],
-                        $superCharger);
-                } else {
-                    if (@$superCharger["city"] != null) {
-                        if (@$array[$superCharger["region"]][$superCharger["country"]][$superCharger["city"]] ===
-                            null
-                        ) {
-                            $array[$superCharger["region"]][$superCharger["country"]][$superCharger["city"]] = array();
-                        }
-                        array_push($array[$superCharger["region"]][$superCharger["country"]][$superCharger["city"]],
-                            $superCharger);
-                    } else {
-                        if (@$array[$superCharger["region"]][$superCharger["country"]]["stateless"] === null) {
-                            $array[$superCharger["region"]][$superCharger["country"]]["stateless"] = array();
-                        }
-                        array_push($array[$superCharger["region"]][$superCharger["country"]]["stateless"],
-                            $superCharger);
-                    }
-                }
-            } else {
-                if (@$array[$superCharger["region"]]["countryless"] === null) {
-                    $array[$superCharger["region"]]["countryless"] = array();
-                }
-                array_push($array[$superCharger["region"]]["countryless"], $superCharger);
-            }
-        } else {
-            if (@$array["regionless"] === null) {
-                $array["regionless"] = array();
-            }
-            array_push($array["regionless"], $superCharger);
-        }
-    }
+//    $array = array();
+//    foreach ($superChargers as $superCharger) {
+//        if (@$superCharger["region"] !== null) {
+//            if (@$superCharger["country"] !== null) {
+//                if (@$superCharger["state"] != null) {
+//                    if (@$array[$superCharger["region"]][$superCharger["country"]][$superCharger["state"]] === null) {
+//                        $array[$superCharger["region"]][$superCharger["country"]][$superCharger["state"]] = array();
+//                    }
+//                    array_push($array[$superCharger["region"]][$superCharger["country"]][$superCharger["state"]],
+//                        $superCharger);
+//                } else {
+//                    if (@$superCharger["city"] != null) {
+//                        if (@$array[$superCharger["region"]][$superCharger["country"]][$superCharger["city"]] ===
+//                            null
+//                        ) {
+//                            $array[$superCharger["region"]][$superCharger["country"]][$superCharger["city"]] = array();
+//                        }
+//                        array_push($array[$superCharger["region"]][$superCharger["country"]][$superCharger["city"]],
+//                            $superCharger);
+//                    } else {
+//                        if (@$array[$superCharger["region"]][$superCharger["country"]]["stateless"] === null) {
+//                            $array[$superCharger["region"]][$superCharger["country"]]["stateless"] = array();
+//                        }
+//                        array_push($array[$superCharger["region"]][$superCharger["country"]]["stateless"],
+//                            $superCharger);
+//                    }
+//                }
+//            } else {
+//                if (@$array[$superCharger["region"]]["countryless"] === null) {
+//                    $array[$superCharger["region"]]["countryless"] = array();
+//                }
+//                array_push($array[$superCharger["region"]]["countryless"], $superCharger);
+//            }
+//        } else {
+//            if (@$array["regionless"] === null) {
+//                $array["regionless"] = array();
+//            }
+//            array_push($array["regionless"], $superCharger);
+//        }
+//    }
     header('Content-Type: application/json');
     echo json_encode($superChargers, JSON_PRETTY_PRINT);

@@ -23,13 +23,16 @@
     foreach ($chargers as $charger) {
         if ($charger['type'] == 0) {
             $charger['type'] = "supercharger";
+            $charger['type2'] = "sc";
         } else {
             $charger['type'] = "destinationcharger";
+            $charger['type2'] = "dc";
         }
         $dcTable->addRows(array($charger['name'], $charger['email'],
             $charger['charger_name'], $charger['address'], $charger['link'],
             $charger['rating'], $charger['lat'], $charger['lng'], $charger['type'],
-            "<a class='btn btn-primary' href='/manager/checkReview.php?id=" . $charger['review_id'] .
+            "<a class='btn btn-primary' href='/manager/checkReview.php?type=" . $charger['type2'] . "&id=" .
+            $charger['review_id'] .
             "'>Check</a>"));
     }
     $scTable = new Table();

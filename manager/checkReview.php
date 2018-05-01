@@ -5,16 +5,23 @@
      * Date: 2/2/18
      * Time: 3:29 PM
      */
+    error_reporting(E_ALL);
+    ini_set("display_errors", 1);
     require_once($_SERVER["DOCUMENT_ROOT"] . "/Table.php");
     require_once($_SERVER["DOCUMENT_ROOT"] . "/page/DefaultPage.php");
     require_once($_SERVER["DOCUMENT_ROOT"] . "/inputcleansing/InputCleanserFactory.php");
+    require_once($_SERVER["DOCUMENT_ROOT"] . "/mysql/querying/select/SelectQuery.php");
+    require_once($_SERVER["DOCUMENT_ROOT"] . "/mysql/db/DBQuerrier.php");
 
-    $cleanser = new InputCleanserFactory();
+    error_reporting(E_ALL);
+    ini_set("display_errors", 1);
+    $cleanser = InputCleanserFactory::dataBaseFriendly();
     if (count($_GET)) {
         if (isset($_GET['id'])) {
-            $id = validNumbers($_GET["id"], 10);
+            $id = $cleanser->cleanse($_GET["id"]);
             $query = new SelectQuery("charger_not_in_system", "name", "email", "charger_name", "address", "link",
                 "rating", "lat", "lng");
+            $query->where(Where::whereEqualValue("review_id", DBValue::nonStringValue($id)));
             $results = DBQuerrier::queryUniqueValue($query);
             $charger = @ mysqli_fetch_assoc($results);
             $table = new Table();
@@ -22,7 +29,6 @@
             $table->addRows(array($charger['name'], $charger['email'], $charger['charger_name'],
                 $charger['address'], $charger['link'], $charger['rating'],
                 $charger['lat'], $charger['lng']));
-            $link = "/chargers.php";
             $page = new DefaultPage("Check Review");
             $page->addStyleSheet("main.css");
             $page->addJSFile("/view/checkReview.js");
