@@ -27,7 +27,7 @@
         array_push($reviews, $row);
         array_push($rows, array("<a href='{$row['link']}'>Link</a>", $row['reviewer'], $row['email'], $row['rating'],
             $row["review_date"],
-            "<form action='/addToTTN.php' method='post'><input type='hidden' name='rid' value='{$row['review_id']}'>"
+            "<form action='/manager/addToTTN.php' method='post'><input type='hidden' name='rid' value='{$row['review_id']}'>"
             . "<input type='number' min='0' style='1' name='ttn_id' class='form-control' required>"
             . "<input type='submit' value='Submit' class='btn btn-primary form-control'></form>"));
     }
@@ -38,7 +38,7 @@
         "<input type='number' min='0' step='1' name='ttn_id' class='form-control' required>&nbsp;</div>" .
         "<div class='form-group'><label for='link'>Link:</label>&nbsp;" .
         "<input class='form-control' type='text' name='link' required></div>" .
-        "<input type='submit' value='Submit' class='btn btn-primary form-control'></form></div>", Page::BOTTOM);
+        "<input type='submit' value='Submit' class='btn btn-primary form-control'></form><a href='/manager/brent.php' class='btn btn-primary'>Accidentally assigned a review to an episode of TTN?</a></div>", Page::BOTTOM);
     $page->addToBody($table->getHtml(8, 2), Page::BOTTOM);
     $query = new SelectQuery("ttn", "ttn_id", "link");
     $result = DBQuerrier::defaultQuery($query);

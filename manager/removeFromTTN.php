@@ -6,6 +6,7 @@
     require_once($_SERVER["DOCUMENT_ROOT"] . "/mysql/querying/where/Where.php");
     require_once($_SERVER["DOCUMENT_ROOT"] . "/mysql/db/DBQuerrier.php");
     require_once($_SERVER["DOCUMENT_ROOT"] . "/inputcleansing/InputCleanserFactory.php");
+    require_once($_SERVER["DOCUMENT_ROOT"] . "/mysql/querying/CustomQuery.php");
 
     /**
      * Created by PhpStorm.
@@ -15,11 +16,10 @@
      */
     $cleanser = InputCleanserFactory::dataBaseFriendly();
     if (count($_POST)) {
-        $review_id = $cleanser->cleanse($_POST["rid"]);
-        $query = new CustomQuery("UPDATE review SET ttn_id to NULL");
-        $query->where(Where::whereEqualValue("review_id", DBValue::nonStringValue($review_id)));
+        $review_id = $cleanser->cleanse($_POST["id"]);
+        $query = new CustomQuery("UPDATE review SET ttn_id = NULL WHERE review_id = " . $review_id);
         DBQuerrier::defaultUpdate($query);
-        header("location: /brent.php");
+        header("location: /manager/brent.php");
         exit;
     } else {
         header("location: /index.php");

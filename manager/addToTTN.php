@@ -15,13 +15,13 @@
      */
     $cleanser = InputCleanserFactory::dataBaseFriendly();
     if (count($_POST)) {
-        $review_id = $cleanser->cleanse($_POST["rid"], 11);
-        $ttn_id = $cleanser->cleanse($_POST["ttn_id"], 11);
+        $review_id = $cleanser->cleanse($_POST["rid"]);
+        $ttn_id = $cleanser->cleanse($_POST["ttn_id"]);
         $query = new UpdateQuery("review");
         $query->addParamAndValue("ttn_id", DBValue::nonStringValue($ttn_id));
         $query->where(Where::whereEqualValue("review_id", DBValue::nonStringValue($review_id)));
         DBQuerrier::defaultUpdate($query);
-        header("location: /bobby.php");
+        header("location: /manager/bobby.php");
         exit;
     } else {
         header("location: /index.php");

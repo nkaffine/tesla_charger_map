@@ -82,7 +82,8 @@
             $query->addParamAndValues("rating", DBValue::nonStringValue($rating));
             $query->addParamAndValues("lng", DBValue::nonStringValue($lng));
             $query->addParamAndValues("lat", DBValue::nonStringValue($lat));
-            $query->addParamAndValues("type", DBValue::stringValue($charger_name));
+            $query->addParamAndValues("type", DBValue::stringValue($type));
+            $query->addParamAndValues("review_date", DBValue::nonStringValue("CURRENT_DATE"));
             DBQuerrier::defaultInsert($query);
         }
     }

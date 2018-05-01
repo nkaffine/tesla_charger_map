@@ -29,8 +29,9 @@
         array_push($reviews, $row);
         array_push($rows, array("<a href='{$row['link']}'>Link</a>", $row['reviewer'], $row['email'], $row['rating'],
             $row["review_date"],
-            $row['ttn_id'] . "<form target='/removeFromTTN.php'><input type='hidden' name='id' " . $row['review_id'] .
-            "><input type='submit' value='UNDO' class='btn btn-primary form-control'></form>"));
+            $row['ttn_id'] . "<form action='/manager/removeFromTTN.php' method='post'><input type='hidden' name='id' value='" .
+            $row['review_id'] .
+            "'><input type='submit' value='UNDO' class='btn btn-primary form-control'></form>"));
     }
     $table->addColumns("Youtube Link", "Reviewer", "Reviewer Email", "Rating", "Date", "TTN Number");
     $table->addRowsArray($rows);
@@ -39,7 +40,7 @@
         "<input type='number' min='0' step='1' name='ttn_id' class='form-control' required>&nbsp;</div>" .
         "<div class='form-group'><label for='link'>Link:</label>&nbsp;" .
         "<input class='form-control' type='text' name='link' required></div>" .
-        "<input type='submit' value='Submit' class='btn btn-primary form-control'></form></div>", Page::BOTTOM);
+        "<input type='submit' value='Submit' class='btn btn-primary form-control'></form><a href='/manager/bobby.php' class='btn btn-primary'>Back to Inputting into TTNs</a></div>", Page::BOTTOM);
     $page->addToBody($table->getHtml(8, 2), Page::BOTTOM);
     $query = new SelectQuery("ttn", "ttn_id", "link");
     $result = DBQuerrier::defaultQuery($query);

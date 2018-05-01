@@ -5,66 +5,24 @@
      * Date: 2/2/18
      * Time: 3:29 PM
      */
-    require_once($_SERVER["DOCUMENT_ROOT"] . "/model/notinsystem/ReviewSuperchargerNotInSystem.php");
-    require_once($_SERVER["DOCUMENT_ROOT"] . "/model/notinsystem/ReviewDestinationChargerNotInSystem.php");
     require_once($_SERVER["DOCUMENT_ROOT"] . "/Table.php");
     require_once($_SERVER["DOCUMENT_ROOT"] . "/page/DefaultPage.php");
+    require_once($_SERVER["DOCUMENT_ROOT"] . "/inputcleansing/InputCleanserFactory.php");
 
-    /**
-     * Cleans the string by escaping and removing special characters.
-     *
-     * @param $uncleanString string
-     * @param $maxLength int
-     * @return string
-     */
-    function validInputSizeAlpha($uncleanString, $maxLength) {
-        $sizedString = substr($uncleanString, 0, $maxLength);
-        $cleanString = preg_replace("[^\.a-zA-Z' ]", '', $sizedString);
-        $cleanString = str_replace("'", "\'", $cleanString);
-        return ($cleanString);
-    }
-
-    /**
-     * Cleans the numbers by escaping and removing non numeric chars
-     *
-     * @param $uncleanString string
-     * @param $maxLength int
-     * @return int
-     */
-    function validNumbers($uncleanString, $maxLength) {
-        $cleanString = substr($uncleanString, 0, $maxLength);
-        $cleanString = preg_replace("[^\.0-9]", '', $cleanString);
-        return ($cleanString);
-    }
-
+    $cleanser = new InputCleanserFactory();
     if (count($_GET)) {
-        if (isset($_GET['type']) && isset($_GET['id'])) {
-            $type = validInputSizeAlpha($_GET["type"], 25);
+        if (isset($_GET['id'])) {
             $id = validNumbers($_GET["id"], 10);
-            if ($type === "sc") {
-                $charger =
-                    new ReviewSuperchargerNotInSystem($id, null, null, null, null, null, null, null, null, null, null,
-                        null, null);
-                $table = new Table();
-                $table->addColumns("Name", "Email", "Location", "Address", "Stalls", "Link", "Rating", "Lng", "Lat",
-                    "Status", "Open Date", "Checked");
-                $table->addRows(array($charger->getName(), $charger->getEmail(), $charger->getLocation(),
-                    $charger->getAddress(), $charger->getStalls(), $charger->getLink(), $charger->getRating(),
-                    $charger->getLng(), $charger->getLat(), $charger->getStatus(), $charger->getOpenDate(),
-                    $charger->isChecked()));
-                $link = "/superchargers.php";
-            } else if ($type === "dc") {
-                $charger =
-                    new ReviewDestinationChargerNotInSystem($id, null, null, null, null, null, null, null, null, null);
-                $table = new Table();
-                $table->addColumns("Name", "Email", "Location", "Address", "Link", "Rating", "Lat", "Lng", "Checked");
-                $table->addRows(array($charger->getName(), $charger->getEmail(), $charger->getLocation(),
-                    $charger->getAddress(), $charger->getLink(), $charger->getRating(), $charger->getLat(),
-                    $charger->getLng(), $charger->isChecked()));
-                $link = "/destinationchargers.php";
-            } else {
-                throw new InvalidArgumentException("Invalid charger type");
-            }
+            $query = new SelectQuery("charger_not_in_system", "name", "email", "charger_name", "address", "link",
+                "rating", "lat", "lng");
+            $results = DBQuerrier::queryUniqueValue($query);
+            $charger = @ mysqli_fetch_assoc($results);
+            $table = new Table();
+            $table->addColumns("Name", "Email", "Charger Name", "Address", "Link", "Rating", "Lat", "Lng");
+            $table->addRows(array($charger['name'], $charger['email'], $charger['charger_name'],
+                $charger['address'], $charger['link'], $charger['rating'],
+                $charger['lat'], $charger['lng']));
+            $link = "/chargers.php";
             $page = new DefaultPage("Check Review");
             $page->addStyleSheet("main.css");
             $page->addJSFile("/view/checkReview.js");
