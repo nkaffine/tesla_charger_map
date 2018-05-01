@@ -10,10 +10,10 @@ function get(name) {
 function processSuperchargerData(data) {
     let rows = [];
     let link = "";
-    for (let i = 0; i < data.results.length; i++) {
-        rows[i] = [data.results[i].name, data.results[i].lat, data.results[i].lng, data.results[i].address,
-            data.results[i].status, data.results[i].open_date, data.results[i].stalls,
-            "<button class='chargerbtn btn btn-primary' data-charger-id='" + data.results[i].id +
+    for (let i = 0; i < data.length; i++) {
+        rows[i] = [data[i].name, data[i].lat, data[i].lng, data[i].address,
+            data[i].status, data[i].open_date, data[i].stalls,
+            "<button class='chargerbtn btn btn-primary' data-charger-id='" + data[i].id +
             "'>Choose</button>"];
     }
     return createTable("Superchargers", ["Name", "Lat", "Lng", "Address", "Status", "Open Date", "Stalls", ""], rows,
@@ -89,7 +89,7 @@ $(document).ready(function () {
             }
             $("#searchResults").html(html);
             $(".chargerbtn").click(function () {
-                let link = "/assignReview.php?charger_id=" + encodeURIComponent($(this).data("charger-id")) + "&type=" +
+                let link = "/manager/assignReview.php?charger_id=" + encodeURIComponent($(this).data("charger-id")) + "&type=" +
                     encodeURIComponent(get("type")) + "&id=" + encodeURIComponent(get("id"));
                 $.getJSON(link, function (data) {
                     if (data.error !== null) {
