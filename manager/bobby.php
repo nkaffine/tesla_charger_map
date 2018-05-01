@@ -1,4 +1,6 @@
 <?php
+    error_reporting(E_ALL);
+    ini_set("display_errors", 1);
     require_once($_SERVER["DOCUMENT_ROOT"] . "/page/DefaultPage.php");
     require_once($_SERVER["DOCUMENT_ROOT"] . "/mysql/querying/select/SelectQuery.php");
     require_once($_SERVER["DOCUMENT_ROOT"] . "/mysql/querying/where/Where.php");
@@ -15,7 +17,7 @@
      */
     $page = new DefaultPage("TTN Supercharger Review Manager");
     $query =
-        new SelectQuery("reviews", "review_id", "link", "reviewer", "email", "rating", "review_date", "charger_id");
+        new SelectQuery("review", "review_id", "link", "reviewer", "email", "rating", "review_date", "charger_id");
     $query->where(Where::whereIsNull("ttn_id"));
     $results = DBQuerrier::defaultQuery($query);
     $table = new Table();
