@@ -1,0 +1,1 @@
+SELECT charger_id, lat, lng, name, region, country, street, city, state, zip FROM destination_charger INNER JOIN charger USING (charger_id) ORDER BY region, country, state

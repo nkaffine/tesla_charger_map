@@ -1,0 +1,1 @@
+SELECT charger_id, link, rating FROM review INNER JOIN destination_charger USING (charger_id);

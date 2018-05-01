@@ -25,6 +25,7 @@ class SuperCharger {
     addMarkerToMap(map, infowindows) {
         let marker = this.innerCharger.createMarker(map, this.getIcon());
         this.addListenerToMarker(marker, map, infowindows);
+        return marker;
     }
 
     getInformationForDisplay() {
@@ -36,7 +37,7 @@ class SuperCharger {
         if (this.open_date !== null) {
             content += "<br>Opened: " + this.open_date;
         }
-        if (this.innerCharger.rating !== null) {
+        if (this.innerCharger.rating !== undefined) {
             content += "<br>" + this.innerCharger.rating + "/10";
         }
         return "<div>" + content + "</div>";

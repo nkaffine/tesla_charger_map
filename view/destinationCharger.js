@@ -18,12 +18,13 @@ class DestinationCharger {
     addMarkerToMap(map, infowindows) {
         let marker = this.innerCharger.createMarker(map, this.getIcon());
         this.addListenerToMarker(marker, map, infowindows);
+        return marker;
     }
 
     getInformationForDisplay() {
         let content = this.innerCharger.name;
         content += "<br>" + this.innerCharger.address;
-        if (this.innerCharger.rating !== null) {
+        if (this.innerCharger.rating !== undefined) {
             content += "<br>" + this.innerCharger.rating + "/10";
         }
         return content;
@@ -34,6 +35,7 @@ class DestinationCharger {
         if (this.innerCharger.reviews.length > 0) {
             filename += "_reviews";
         }
+        console.log(filename);
         return {
             url: "/images/" + filename + ".png", scaledSize: new google.maps.Size(35.84, 64)
         };

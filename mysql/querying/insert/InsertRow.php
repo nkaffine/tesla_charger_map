@@ -26,7 +26,7 @@
          * @param $value DBValue the value being inserted.
          */
         public function addValue($param, $value) {
-            if ($this->values[$param] === null) {
+            if (@$this->values[$param] === null) {
                 $this->values[$param] = $value;
             } else {
                 throw new InvalidArgumentException("Parameter already has value");

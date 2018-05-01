@@ -10,10 +10,19 @@ class Charger {
         this.name = charger.name;
         this.lat = charger.lat;
         this.lng = charger.lng;
-        this.address = charger.address;
+        if (charger.street !== undefined && charger.city !== undefined && charger.state !== "" &&
+            charger.zip !== undefined) {
+            this.address = charger.street + " " + charger.city + ", " + charger.state + " " + charger.zip;
+        } else if (charger.street !== undefined && charger.city !== undefined) {
+            this.address = charger.street + " " + charger.city;
+        } else {
+            this.address = "";
+        }
         let reviews = [];
-        for (let i = 0; i < charger.reviews.length; i++) {
-            reviews.push(new ChargerReview(charger.reviews[i]));
+        if (charger.reviews !== undefined) {
+            for (let i = 0; i < charger.reviews.length; i++) {
+                reviews.push(new ChargerReview(charger.reviews[i]));
+            }
         }
         this.reviews = reviews;
         this.rating = charger.rating;
@@ -26,7 +35,7 @@ class Charger {
 
     createMarker(map, icon) {
         return new google.maps.Marker({
-            map: map, position: this.getPoint(), icon: icon
+            position: this.getPoint(), icon: icon,
         });
     }
 

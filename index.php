@@ -18,6 +18,7 @@
     require_once($_SERVER["DOCUMENT_ROOT"] . "/location/Location.php");
     require_once($_SERVER["DOCUMENT_ROOT"] . "/mysql/querying/CustomQuery.php");
     require_once($_SERVER["DOCUMENT_ROOT"] . "/inputcleansing/InputCleanserFactory.php");
+    require_once($_SERVER["DOCUMENT_ROOT"] . "/model2/ChargerReview.php");
     header("Access-Control-Allow-Origin: *");
 
     if (count($_GET)) {
@@ -38,24 +39,27 @@
             if ($rating > 10 || $rating < 0) {
                 throw new InvalidArgumentException("Invalid rating scale");
             }
-            if (ChargerReview::addReview($name, $email, $location, $address, $link, $rating, $lng, $lat, $type)) {
-                //it was added to the chargers in the system.
-            } else {
-                //It was added to the chargers not in system
-            }
+            $inSystem = ChargerReview::addReview($name, $email, $location, $address, $link, $rating, $lng, $lat, $type);
             header('Content-Type: application/json');
             $array = array();
             $array['error'] = null;
+            if ($inSystem) {
+                $array['success'] = "You should see your review when you refresh the page.";
+            } else {
+                $array['success'] = "It may take a few days for your review to be processed.";
+            }
             echo json_encode($array, JSON_PRETTY_PRINT);
         } catch (SQLNonUniqueValueException $nonUniqueValueException) {
             header('Content-Type: application/json');
             $array = array();
             $array['error'] = "There were multiple chargers in that location";
+            $array['success'] = null;
             echo json_encode($array, JSON_PRETTY_PRINT);
         } catch (Exception $exception) {
             header('Content-Type: application/json');
             $array = array();
             $array['error'] = $exception->getMessage();
+            $array['success'] = null;
             echo json_encode($array, JSON_PRETTY_PRINT);
         }
     } else {
@@ -66,5 +70,6 @@
         $page->addToBody("<div style='width:100%;' id='map'></div>", Page::BOTTOM);
         $page->addToHead("<script async defer src=\"https://maps.googleapis.com/maps/api/js?key=AIzaSyDs2nMmdnDV0o3BJCPrrfa96qTvXetPW_w&callback=initMap\"></script>",
             Page::BOTTOM);
+        $page->addToHead("<script src='/markerclusterer.js'></script>", Page::BOTTOM);
         echo $page->generateHtml();
     }

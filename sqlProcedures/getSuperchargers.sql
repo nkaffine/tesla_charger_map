@@ -1,0 +1,1 @@
+SELECT charger_id, lat, lng, name, region, country, street, city, state, zip, status, stalls, open_date FROM super_charger INNER JOIN charger USING (charger_id) ORDER BY region, country, state

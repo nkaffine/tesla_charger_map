@@ -40,11 +40,13 @@
             } else {
                 $type = "destination_charger";
             }
-            $query = new CustomQuery("SELECT charger_id FROM " . $type . " WHERE lat > " . $box->getMinLat() .
-                " AND lat < " . $box->getMaxLat() . " AND lng > " . $box->getMinLat() . " AND lng < " .
-                $box->getMinLng());
+            $query = new CustomQuery("SELECT charger_id FROM " . $type .
+                " INNER JOIN charger USING (charger_id) WHERE lat > " . $box->getMinLat() .
+                " AND lat < " . $box->getMaxLat() . " AND lng > " . $box->getMinLng() . " AND lng < " .
+                $box->getMaxLng());
             try {
-                if (!($result = DBQuerrier::checkExistsQuery($query))) {
+                $result = DBQuerrier::checkExistsQuery($query);
+                if (!$result) {
                     self::addToChargersNotInSystem($name, $email, $charger_name, $address, $link, $rating, $lng, $lat,
                         $type);
                     return false;
