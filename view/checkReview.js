@@ -13,7 +13,7 @@ function processSuperchargerData(data) {
     for (let i = 0; i < data.length; i++) {
         let address = getAddress(data[i]);
         rows[i] = [data[i].name, data[i].lat, data[i].lng, address, data[i].status, data[i].open_date, data[i].stalls,
-            "<button class='chargerbtn btn btn-primary' data-charger-id='" + data[i].id + "'>Choose</button>"];
+            "<button class='chargerbtn btn btn-primary' data-charger-id='" + data[i].charger_id + "'>Choose</button>"];
     }
     return createTable("Superchargers", ["Name", "Lat", "Lng", "Address", "Status", "Open Date", "Stalls", ""], rows,
         10, 1);
@@ -38,9 +38,11 @@ function getAddress(data) {
 
 function processDestinationChargerData(data) {
     let rows = [];
-    for (let i = 0; i < data.results.length; i++) {
-        rows[i] = [data.results[i].name, data.results[i].lat, data.results[i].lng, data.results[i].address,
-            "<button class='chargerbtn btn btn-primary' data-charger-id='" + data.results[i].id + "'>Choose</button>"];
+    let n = 0;
+    for (let i in data) {
+        rows[n] = [data[i].name, data[i].lat, data[i].lng, data[i].address,
+            "<button class='chargerbtn btn btn-primary' data-charger-id='" + data[i].charger_id + "'>Choose</button>"];
+        n += 1;
     }
     return createTable("Destination Chargers", ["Name", "Lat", "Lng", "Address", ""], rows, 10, 1);
 }

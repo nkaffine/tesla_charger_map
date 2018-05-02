@@ -73,6 +73,11 @@
         private static function addToChargersNotInSystem($name, $email, $charger_name, $address, $link, $rating, $lng,
                                                          $lat,
                                                          $type) {
+            if ($type === "super_charger") {
+                $type = 0;
+            } else {
+                $type = 1;
+            }
             $query = new InsertQuery("charger_not_in_system");
             $query->addParamAndValues("name", DBValue::stringValue($name));
             $query->addParamAndValues("email", DBValue::stringValue($email));
@@ -82,7 +87,7 @@
             $query->addParamAndValues("rating", DBValue::nonStringValue($rating));
             $query->addParamAndValues("lng", DBValue::nonStringValue($lng));
             $query->addParamAndValues("lat", DBValue::nonStringValue($lat));
-            $query->addParamAndValues("type", DBValue::stringValue($type));
+            $query->addParamAndValues("type", DBValue::nonStringValue($type));
             $query->addParamAndValues("review_date", DBValue::nonStringValue("CURRENT_DATE"));
             DBQuerrier::defaultInsert($query);
         }

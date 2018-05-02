@@ -13,12 +13,13 @@
     require_once($_SERVER["DOCUMENT_ROOT"] . "/mysql/querying/select/joinQueries/DBJoinTable.php");
     require_once($_SERVER["DOCUMENT_ROOT"] . "/mysql/querying/select/joinQueries/InnerJoin.php");
     require_once($_SERVER["DOCUMENT_ROOT"] . "/mysql/querying/where/Where.php");
+    require_once($_SERVER["DOCUMENT_ROOT"] . "/mysql/querying/where/Like.php");
 
     $cleanser = InputCleanserFactory::dataBaseFriendly();
     $joinTable1 = new DBJoinTable("destination_charger", "charger_id");
     $joinTable2 = new DBJoinTable("charger", "charger_id");
     $joinTable1->addParams("charger_id");
-    $joinTable2->addParams("lat", "lng", "charger_id", "name", "region", "street", "city", "state", "zip", "country");
+    $joinTable2->addParams("lat", "lng", "charger_id", "name", "region", "street", "city", "state", "zip", "country", "address");
     $chargerQuery = new InnerJoin($joinTable1, $joinTable2);
 
     $DBTable1 = new DBJoinTable("destination_charger", "charger_id");
@@ -45,6 +46,18 @@
     }
     if (count(@$_GET["city"])) {
         $where = Where::whereEqualValue("city", DBValue::stringValue($cleanser->cleanse($_GET["city"])));
+        $chargerQuery->where($where);
+        $reviewQuery->where($where);
+    }
+    if (count(@$_GET["address"])) {
+        $where = Like::newLike("address");
+        $where->contains($cleanser->cleanse($_GET["address"]));
+        $chargerQuery->where($where);
+        $reviewQuery->where($where);
+    }
+    if (count(@$_GET["location"])) {
+        $where = Like::newLike("name");
+        $where->contains($cleanser->cleanse($_GET["location"]));
         $chargerQuery->where($where);
         $reviewQuery->where($where);
     }
