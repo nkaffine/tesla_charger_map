@@ -11,21 +11,36 @@ function processSuperchargerData(data) {
     let rows = [];
     let link = "";
     for (let i = 0; i < data.length; i++) {
-        rows[i] = [data[i].name, data[i].lat, data[i].lng, data[i].address,
-            data[i].status, data[i].open_date, data[i].stalls,
-            "<button class='chargerbtn btn btn-primary' data-charger-id='" + data[i].id +
-            "'>Choose</button>"];
+        let address = getAddress(data[i]);
+        rows[i] = [data[i].name, data[i].lat, data[i].lng, address, data[i].status, data[i].open_date, data[i].stalls,
+            "<button class='chargerbtn btn btn-primary' data-charger-id='" + data[i].id + "'>Choose</button>"];
     }
     return createTable("Superchargers", ["Name", "Lat", "Lng", "Address", "Status", "Open Date", "Stalls", ""], rows,
         10, 1);
+}
+
+function getAddress(data) {
+    let address = "";
+    if (data.street != null) {
+        address += data.street;
+    }
+    if (data.city != null) {
+        address += " " + data.city;
+    }
+    if (data.state != null) {
+        address += ", " + data.state;
+    }
+    if (data.zip != null) {
+        address += " " + data.zip;
+    }
+    return address;
 }
 
 function processDestinationChargerData(data) {
     let rows = [];
     for (let i = 0; i < data.results.length; i++) {
         rows[i] = [data.results[i].name, data.results[i].lat, data.results[i].lng, data.results[i].address,
-            "<button class='chargerbtn btn btn-primary' data-charger-id='" + data.results[i].id +
-            "'>Choose</button>"];
+            "<button class='chargerbtn btn btn-primary' data-charger-id='" + data.results[i].id + "'>Choose</button>"];
     }
     return createTable("Destination Chargers", ["Name", "Lat", "Lng", "Address", ""], rows, 10, 1);
 }
@@ -89,8 +104,8 @@ $(document).ready(function () {
             }
             $("#searchResults").html(html);
             $(".chargerbtn").click(function () {
-                let link = "/manager/assignReview.php?charger_id=" + encodeURIComponent($(this).data("charger-id")) + "&type=" +
-                    encodeURIComponent(get("type")) + "&id=" + encodeURIComponent(get("id"));
+                let link = "/manager/assignReview.php?charger_id=" + encodeURIComponent($(this).data("charger-id")) +
+                    "&type=" + encodeURIComponent(get("type")) + "&id=" + encodeURIComponent(get("id"));
                 $.getJSON(link, function (data) {
                     if (data.error !== null) {
                         $("#error").html(generateError(data.error));
