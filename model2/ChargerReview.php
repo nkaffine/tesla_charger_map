@@ -13,6 +13,42 @@
 
     class ChargerReview implements IChargerReview {
         /**
+         * @param $name string the name of the person doing the review.
+         * @param $email string the email of the reviewer.
+         * @param $charger_id int the id of the charger.
+         * @param $link string the link to the video.
+         * @param $rating int the rating of the charger from the reviewer.
+         * @param $type int the type of the charger.
+         * @return bool whether the charger was successfully added to the system.
+         */
+        public static function addReviewToKnownCharger($name, $email, $charger_id, $link, $rating, $type)
+        {
+            if ($type > 1 || $type < 0)
+            {
+                throw new InvalidArgumentException("Invalid type");
+            }
+            if ($rating > 10 || $rating < 0)
+            {
+                throw new InvalidArgumentException("Invalid rating scale");
+            }
+            $query = new InsertQuery("review");
+            $query->addParamAndValues("charger_id", DBValue::nonStringValue($charger_id));
+            $query->addParamAndValues("link", DBValue::stringValue($link));
+            $query->addParamAndValues("reviewer", DBValue::stringValue($name));
+            $query->addParamAndValues("email", DBValue::stringValue($email));
+            $query->addParamAndValues("rating", DBValue::nonStringValue($rating));
+            $query->addParamAndValues("review_date", DBValue::nonStringValue("CURRENT_DATE"));
+            try
+            {
+                DBQuerrier::defaultQuery($query);
+            }
+            catch (SQLQueryFailException $exception)
+            {
+                return false;
+            }
+            return true;
+        }
+        /**
          * @param $name string the name of the reviewer.
          * @param $email string the email of the reviewer.
          * @param $charger_name string the name of the charger.

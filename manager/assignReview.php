@@ -13,6 +13,8 @@
     require_once($_SERVER["DOCUMENT_ROOT"] . "/mysql/db/DBQuerrier.php");
     require_once($_SERVER["DOCUMENT_ROOT"] . "/mysql/querying/where/Where.php");
     require_once($_SERVER["DOCUMENT_ROOT"] . "/mysql/querying/insert/InsertQuery.php");
+    require_once($_SERVER["DOCUMENT_ROOT"] . "/mysql/querying/update/UpdateQuery.php");
+    require_once($_SERVER['DOCUMENT_ROOT'] . "/mysql/querying/DBValue.php");
 
     $cleanser = InputCleanserFactory::dataBaseFriendly();
     $array['success'] = null;
@@ -34,6 +36,11 @@
                 $query->addParamAndValues("charger_id",
                     DBValue::nonStringValue($cleanser->cleanse($_GET["charger_id"])));
                 DBQuerrier::defaultInsert($query);
+                $query = new UpdateQuery("charger_not_in_system");
+                $query->addParamAndValue("checked", DBValue::nonStringValue(1));
+                $query->where(Where::whereEqualValue("review_id",
+                    DBValue::nonStringValue($cleanser->cleanse($_GET["id"]))));
+                DBQuerrier::defaultUpdate($query);
                 $array['success'] = "The Review Was Successfully Submitted";
             } else {
                 throw new InvalidArgumentException("Not all required values were passed");

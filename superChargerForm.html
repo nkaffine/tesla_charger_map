@@ -13,34 +13,22 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.2/css/bootstrap-select.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.2/js/bootstrap-select.min.js"></script>
 <script>
-    function processData(geodata) {
-        if (geodata.results.length === 0) {
-            $("#content").html("<div class=\"panel panel-danger\">" + "<div class=\"panel-heading\">Error:</div>" +
-                "<div class=\"panel-body\">There was an error with the address that you provided, please try again.</div>" +
-                "</div>" + $("#content").html());
-        } else {
-            let lat = geodata.results[0].geometry.location.lat;
-            let lon = geodata.results[0].geometry.location.lng;
-            let link = "https://www.testprojectcoups.dreamhosters.com/?";
-            link += "name=" + encodeURIComponent($("#name").val()) + "&email=" + encodeURIComponent($("#email").val()) +
-                "&location=" + encodeURIComponent($("#location").val()) + "&address=" +
-                encodeURIComponent($("#address").val()) +
-                "&link=" + encodeURIComponent($("#link").val()) + "&rating=" + encodeURIComponent($("#rating").val()) +
-                "&lng=" + encodeURIComponent(lon) + "&lat=" + encodeURIComponent(lat) + "&type=" +
-                encodeURIComponent($("#chargerType").val());
-            console.log(link);
-            $.getJSON(link, function (data) {
-                if (data.error !== null) {
-                    $("#content").html(
-                        "<div class=\"panel panel-danger\">" + "<div class=\"panel-heading\">Error:</div>" +
-                        "<div class=\"panel-body\">" + data.error + "</div>" + "</div>" + $("#content").html());
-                } else {
-                    $("#content").html(
-                        "<div class=\"panel panel-success\">" + "<div class=\"panel-heading\">Success!</div>" +
-                        "<div class=\"panel-body\">" + data.success + "</div>" + "</div>");
-                }
-            });
-        }
+    function processData() {
+        let link = "https://www.projectcoups.dreamhosters.com/?";
+        link += "name=" + encodeURIComponent($("#name").val()) + "&email=" + encodeURIComponent($("#email").val()) +
+            "&link=" + encodeURIComponent($("#link").val()) + "&rating=" + encodeURIComponent($("#rating").val()) +
+            "&type=" + encodeURIComponent($("#chargerType").val()) + "&charger_id=" + encodeURIComponent($("#chargers").val());
+        $.getJSON(link, function (data) {
+            if (data.error !== null) {
+                $("#content").html(
+                    "<div class=\"panel panel-danger\">" + "<div class=\"panel-heading\">Error:</div>" +
+                    "<div class=\"panel-body\">" + data.error + "</div>" + "</div>" + $("#content").html());
+            } else {
+                $("#content").html(
+                    "<div class=\"panel panel-success\">" + "<div class=\"panel-heading\">Success!</div>" +
+                    "<div class=\"panel-body\">" + data.success + "</div>" + "</div>");
+            }
+        });
     }
     function handleError(error) {
         console.log(error);
@@ -52,20 +40,87 @@
                 "<div class=\"panel-body\">Not all fields were filled out</div>" + "</div>" + $("#content").html());
             return false;
         } else {
-            return true;
+            if (validYoutubeLink($("#link").val()))
+            {
+                return true;
+            }
+            else
+            {
+                $("#content").html("<div class=\"panel panel-danger\">" + "<div class=\"panel-heading\">Error:</div>" +
+                    "<div class=\"panel-body\">Invalid Youtube Link</div>" + "</div>" + $("#content").html());
+            }
         }
     }
+
+    function validYoutubeLink(link)
+    {
+        let elements = link.split(".");
+        if (elements.length === 2) {
+            return true;
+        } else if (elements.length === 3) {
+            if (elements[2].substr(4, 5) === "watch") {
+                let part = elements[2].split("=");
+                return part.length === 2;
+            } else {
+                return true;
+            }
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    function searchChargers(query, chargerType)
+    {
+        let success = function(data) {
+            if (data.error !== undefined) {
+                handleError(data.error)
+            }
+            else
+            {
+                var innerHtml = "";
+                data.forEach(function (charger) {
+                    innerHtml += ("<option value='"+ charger.id + "'>"+charger.name+"</option>")
+                });
+                $("#chargers").html(innerHtml);
+                $("#chargers").selectpicker('refresh');
+            }
+        };
+        let link = "https://www.projectcoups.dreamhosters.com/new/search_charger/";
+        let data = {'charger_type' : chargerType, 'query': query};
+        $.ajax({
+            type: "POST",
+            url: link,
+            data: data,
+            success: success,
+            dataType: "json"
+        });
+    }
+
     $(document).ready(function () {
         $("#submitButton").click(function () {
             if (checkValidForm()) {
-                let key = "AIzaSyBEIu1AJIoF4srd0rC9bYj3NCIj8yLg5vs";
-                let address = encodeURIComponent($("#address").val());
-                let link = "https://maps.googleapis.com/maps/api/geocode/json?address=" + address + "&key=" + key;
-                $.getJSON(link, function (data) {
-                    processData(data)
-                });
+                processData();
             } else {
                 doNothing();
+            }
+        });
+        $("#location").keypress(function(value) {
+            let location = $("#location").val() + value.originalEvent.key;
+            let chargerType = $("#chargerType").val();
+            var newChargerType = null;
+            if (chargerType == 0)
+            {
+                newChargerType = "super"
+            }
+            else if (chargerType == 1)
+            {
+                newChargerType = "destination"
+            }
+            if (location !== null && newChargerType !== null)
+            {
+                searchChargers(location, newChargerType);
             }
         });
     });
@@ -81,13 +136,21 @@
         <input class="form-control" id="email" type="email" required>
     </div>
     <div class="form-group">
-        <label for="location">Name of Super Charger:</label>
+        <label for="chargerType">Charger Type:</label>
+        <select class="form-control selectpicker" id="chargerType">
+            <option value="0">Supercharger</option>
+            <option value="1">Destination Charger</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="location">Search Chargers:</label>
         <input class="form-control" id="location" type="text" required>
     </div>
     <div class="form-group">
-        <label for="address">Super Charger Address (You can find the address <a href="https://supercharge.info/"
-                                                                                target="_blank">here</a>):</label>
-        <input class="form-control" id="address" type="text" required>
+        <label for="chargers">Charger (this will be populated with results from the above search):</label>
+        <select class="form-control selectpicker" id="chargers">
+
+        </select>
     </div>
     <div class="form-group">
         <label for="link">Youtube Link to Review:</label>
@@ -96,13 +159,6 @@
     <div class="form-group">
         <label for="rating">Rating out of 10:</label>
         <input class="form-control" id="rating" type="number" min="1" max="10" step="1" required>
-    </div>
-    <div class="form-group">
-        <label for="chargerType">Charger Type</label>
-        <select class="form-control selectpicker" id="chargerType">
-            <option value="0">Supercharger</option>
-            <option value="1">Destination Charger</option>
-        </select>
     </div>
     <button type="button" class="form-control btn-primary" id="submitButton">Submit Review</button>
 </div>

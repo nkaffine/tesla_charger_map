@@ -26,28 +26,25 @@
             $cleanser = InputCleanserFactory::dataBaseFriendly();
             $name = $cleanser->cleanse($_GET["name"]);
             $email = $cleanser->cleanse($_GET["email"]);
-            $location = $cleanser->cleanse($_GET["location"]);
-            $address = $cleanser->cleanse($_GET["address"]);
             $link = $cleanser->cleanse($_GET["link"]);
             $rating = $cleanser->cleanse($_GET["rating"]);
-            $lng = $cleanser->cleanse($_GET["lng"]);
-            $lat = $cleanser->cleanse($_GET["lat"]);
             $type = $cleanser->cleanse($_GET["type"]);
+            $charger_id = $cleanser->cleanse($_GET["charger_id"]);
             if ($type > 1 || $type < 0) {
                 throw new InvalidArgumentException("Invalid type");
             }
             if ($rating > 10 || $rating < 0) {
                 throw new InvalidArgumentException("Invalid rating scale");
             }
-            $inSystem = ChargerReview::addReview($name, $email, $location, $address, $link, $rating, $lng, $lat, $type);
+            $wasAdded = ChargerReview::addReviewToKnownCharger($name, $email, $charger_id, $link, $rating, $type);
+            if (!$wasAdded)
+            {
+                throw new InvalidArgumentException("Oops! Something went wrong");
+            }
             header('Content-Type: application/json');
             $array = array();
             $array['error'] = null;
-            if ($inSystem) {
-                $array['success'] = "You should see your review when you refresh the page.";
-            } else {
-                $array['success'] = "It may take a few days for your review to be processed.";
-            }
+            $array['success'] = "You should see your review when you refresh the page.";
             echo json_encode($array, JSON_PRETTY_PRINT);
         } catch (SQLNonUniqueValueException $nonUniqueValueException) {
             header('Content-Type: application/json');
@@ -65,7 +62,7 @@
     } else {
         $page = new DefaultPage("Super Chargers");
         $page->addStyleSheet("/main.css");
-        $page->addJSFiles(array("/view/map.js", "/view/charger.js", "/view/chargerReview.js", "/view/superCharger.js",
+        $page->addJSFiles(array("/view/mapv1.js", "/view/charger.js", "/view/chargerReview.js", "/view/superCharger.js",
             "/view/destinationCharger.js"));
         $page->addToBody("<div style='width:100%;' id='map'></div>", Page::BOTTOM);
         $page->addToHead("<script async defer src=\"https://maps.googleapis.com/maps/api/js?key=AIzaSyDs2nMmdnDV0o3BJCPrrfa96qTvXetPW_w&callback=initMap\"></script>",

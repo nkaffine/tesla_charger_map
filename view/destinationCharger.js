@@ -35,7 +35,6 @@ class DestinationCharger {
         if (this.innerCharger.reviews.length > 0) {
             filename += "_reviews";
         }
-        console.log(filename);
         return {
             url: "/images/" + filename + ".png", scaledSize: new google.maps.Size(35.84, 64)
         };
